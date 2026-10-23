@@ -1,45 +1,86 @@
 #include <iostream>
 
-#define WPX_SET_PLATFORM_WIN32
+#if !defined(UNICODE)
+    #define UNICODE
+    
+#endif
 
-#include "Winpux/window.h"
-#include "Winpux/library.h"
+#if !defined(_UNICODE)
+    #define _UNICODE
+
+#endif
+
+#include "windows.h"
 
 
-using namespace wpx;
 
 
-// This is the usage I'm aiming for
+
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT msgId, WPARAM wParam, LPARAM lParam);
 
 int main()
 {
-    if (!WinpuxLib::Init())
+    const WCHAR* pClassName = L"DXWIN32WND"; 
+
+    WNDCLASSEXW wc
     {
-        std::terminate();
+        .cbSize = sizeof(WNDCLASSEXW),
+        .style = CS_OWNDC,
+        .lpfnWndProc = WindowProc,
+        .cbClsExtra = 0,
+        .cbWndExtra = 0,
+        .hInstance = GetModuleHandleW(nullptr),
+        .hIcon = nullptr, 
+        .hCursor = nullptr, 
+        .hbrBackground = nullptr,
+        .lpszMenuName = nullptr,
+        .lpszClassName = pClassName,
+        .hIconSm = nullptr
+    };
+    RegisterClassExW(&wc);
+
+    HWND hWnd = CreateWindowExW(
+        0, 
+        pClassName, L"Window !",
+        WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT, 640, 360,
+        nullptr, nullptr, 
+        GetModuleHandleW(nullptr), 
+        nullptr
+    );
+
+    ShowWindow(hWnd, SW_MINIMIZE);
+    ShowWindow(hWnd, SW_RESTORE);
+    UpdateWindow(hWnd);
+
+    MSG msg{};
+    BOOL bResult{};
+
+    while(GetMessageW(&msg, nullptr, 0, 0) > 0)
+    {
+        TranslateMessage(&msg);
+        DispatchMessageW(&msg);
     }
 
-    wpxWindow* window = WinpuxLib::InitWindow();
+    if (bResult == -1)
+        return -1;
 
-
-    while (!window->ShouldClose()) 
-    {
-        window->PollEvents();
-    }
-
-
-    std::cout << "The window closed !!\n";
-
-    WinpuxLib::DestroyWindow(window);
-
-
-    WinpuxLib::Terminate();
+    else
+        return msg.wParam;
 
 
     return 0;
 }
 
 
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT msgId, WPARAM wParam, LPARAM lParam)
+{
+    switch (msgId)
+    {
+    case WM_CLOSE:
+        PostQuitMessage(0);
+        break;
+    }
 
-
-
-
+    return DefWindowProcW(hWnd, msgId, wParam, lParam);
+}
