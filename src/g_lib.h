@@ -19,7 +19,7 @@ namespace wpx
 
     struct FnPointers
     {
-        bool (*pfn_InitWindow)(WindowID, uint32_t, uint32_t, const char*, ); // id, cwidth, cheight, title
+        bool (*pfn_InitWindow)(WindowID, uint32_t, uint32_t, const char* /*, const WindowSpecs&*/); // id, cwidth, cheight, title, specs 
         void (*pfn_TerminateWindow)(WindowID); // id
 
         bool (*pfn_PollEvent)(Event*); // event
