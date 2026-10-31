@@ -11,38 +11,18 @@
 #endif
 
 #include "windows.h"
-
-
-
+#include "winpux/winpux.h"
 
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT msgId, WPARAM wParam, LPARAM lParam);
 
+
 int main()
 {
-    const WCHAR* pClassName = L"DXWIN32WND"; 
-
-    WNDCLASSEXW wc
-    {
-        .cbSize = sizeof(WNDCLASSEXW),
-        .style = CS_OWNDC,
-        .lpfnWndProc = WindowProc,
-        .cbClsExtra = 0,
-        .cbWndExtra = 0,
-        .hInstance = GetModuleHandleW(nullptr),
-        .hIcon = nullptr, 
-        .hCursor = nullptr, 
-        .hbrBackground = nullptr,
-        .lpszMenuName = nullptr,
-        .lpszClassName = pClassName,
-        .hIconSm = nullptr
-    };
-    RegisterClassExW(&wc);
-
     HWND hWnd = CreateWindowExW(
         0, 
         pClassName, L"Window !",
-        WS_OVERLAPPEDWINDOW,
+        WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX,
         CW_USEDEFAULT, CW_USEDEFAULT, 640, 360,
         nullptr, nullptr, 
         GetModuleHandleW(nullptr), 
@@ -70,7 +50,22 @@ int main()
 
 
     return 0;
+
+
+    if (!wpx::Initialize())
+        return -1;
+
+    if (!wpx::InitWindow(0, 640, 360, "Window", wpx::NO_AUTOPAINT | wpx::DEFAULT_Y_POS /*| wpx::WPX_DEFAULT_X_POS*/));
+    (wpx::NO_AUTOPAINT | wpx::DEFAULT_Y_POS) & wpx::NO_AUTOPAINT;
+    (wpx::NO_AUTOPAINT | wpx::DEFAULT_Y_POS) & wpx::RESIZABLE;
+
+    wpx::Shutdown();
+
+
+
+
 }
+
 
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT msgId, WPARAM wParam, LPARAM lParam)
